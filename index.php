@@ -1,14 +1,12 @@
 <?php
 require __DIR__ . '/db.php';
 
-/* ---- Search (?q=) ---- */
 $q = isset($_GET['q']) ? trim($_GET['q']) : '';
 if (isset($_GET['q']) && $q === '') {
   header('Location: index.php');
   exit;
 }
 
-/* ---- Fetch books ---- */
 $books = [];
 if ($q !== '') {
   $like = "%{$q}%";
@@ -32,11 +30,9 @@ if ($res && $res->num_rows > 0) {
   while ($row = $res->fetch_assoc()) $books[] = $row;
 }
 
-/* ---- Flash ---- */
 $flash = '';
 if (!empty($_SESSION['flash'])) { $flash = $_SESSION['flash']; unset($_SESSION['flash']); }
 
-/* ---- Logged in? ---- */
 $user = $_SESSION['user'] ?? null;
 ?>
 <!doctype html>
@@ -68,8 +64,6 @@ $user = $_SESSION['user'] ?? null;
   <?php if ($flash): ?>
     <div class="alert"><?= htmlspecialchars($flash) ?></div>
   <?php endif; ?>
-
-  <!-- Hero -->
   <section class="hero">
     <div class="hero-wrap">
       <img src="images/hero.jpg" alt="Library shelves">
@@ -81,7 +75,6 @@ $user = $_SESSION['user'] ?? null;
     </div>
   </section>
 
-  <!-- Catalog -->
   <section class="catalog">
     <div class="catalog-head">
       <h2>Available Books</h2>
@@ -125,7 +118,6 @@ $user = $_SESSION['user'] ?? null;
                   <?php if ($user): ?>
                     <a class="button" href="borrow.php?book_id=<?= $bookId ?>">Borrow</a>
                   <?php else: ?>
-                    <!-- Guest clicks Borrow → goes to borrow.php first to set intent -->
                     <a class="button" href="borrow.php?book_id=<?= $bookId ?>">Borrow</a>
                   <?php endif; ?>
                 <?php else: ?>
