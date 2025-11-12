@@ -47,7 +47,7 @@ $user = $_SESSION['user'] ?? null;
       <a href="index.php" class="<?= basename($_SERVER['PHP_SELF'])==='index.php'?'active':'' ?>">Home</a>
       <?php if ($me): ?>
         <?php if (($me['role'] ?? 'user') === 'admin'): ?>
-          <a href="admin_dashboard.php" class="<?= basename($_SERVER['PHP_SELF'])==='admin_dashboard.php'?'active':'' ?>">My Dashboard</a>
+          <a href="admin_dashboard.php" class="<?= basename($_SERVER['PHP_SELF'])==='admin_dashboard.php'?'active':'' ?>">Admin Dashboard</a>
         <?php else: ?>
           <a href="user_dashboard.php" class="<?= basename($_SERVER['PHP_SELF'])==='user_dashboard.php'?'active':'' ?>">My Borrowings</a>
         <?php endif; ?>
