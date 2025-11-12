@@ -5,54 +5,43 @@ if (!empty($_SESSION['user'])) {
   if (!empty($_SESSION['intended_borrow_book_id'])) {
     $id = (int)$_SESSION['intended_borrow_book_id'];
     unset($_SESSION['intended_borrow_book_id']);
-    header('Location: borrow.php?book_id=' . $id);
-    exit;
+    header('Location: borrow.php?book_id=' . $id); exit;
   }
-  if (($_SESSION['user']['role'] ?? 'user') === 'admin') {
-    header('Location: admin_dashboard.php'); exit;
-  }
+  if (($_SESSION['user']['role'] ?? 'user') === 'admin') { header('Location: admin_dashboard.php'); exit; }
   header('Location: user_dashboard.php'); exit;
 }
 
 $errors = [];
-$email  = '';
+$email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = isset($_POST['email']) ? trim($_POST['email']) : '';
-  $pass  = isset($_POST['password']) ? $_POST['password'] : '';
+  $pass = isset($_POST['password']) ? $_POST['password'] : '';
 
-  if ($email === '' || $pass === '') {
-    $errors[] = 'Please fill all fields.';
-  }
-
-  if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors[] = 'Valid email is required.';
-  }
+  if ($email === '' || $pass === '') $errors[] = 'Please fill all fields.';
+  if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Valid email is required.';
 
   if (!$errors) {
     $stmt = $mysqli->prepare("SELECT id,name,email,password_hash,role FROM users WHERE email=? LIMIT 1");
     $stmt->bind_param('s', $email);
     $stmt->execute();
-    $res  = $stmt->get_result();
+    $res = $stmt->get_result();
     $user = $res ? $res->fetch_assoc() : null;
 
     if ($user && password_verify($pass, $user['password_hash'])) {
       $_SESSION['user'] = [
-        'id'    => (int)$user['id'],
-        'name'  => $user['name'],
+        'id' => (int)$user['id'],
+        'name' => $user['name'],
         'email' => $user['email'],
-        'role'  => $user['role']
+        'role' => $user['role']
       ];
       $_SESSION['flash'] = 'Welcome back, ' . $user['name'] . '!';
-
       if (!empty($_SESSION['intended_borrow_book_id'])) {
         $id = (int)$_SESSION['intended_borrow_book_id'];
         unset($_SESSION['intended_borrow_book_id']);
         header('Location: borrow.php?book_id=' . $id); exit;
       }
-      if (($_SESSION['user']['role'] ?? 'user') === 'admin') {
-        header('Location: admin_dashboard.php'); exit;
-      }
+      if (($_SESSION['user']['role'] ?? 'user') === 'admin') { header('Location: admin_dashboard.php'); exit; }
       header('Location: user_dashboard.php'); exit;
     } else {
       $errors[] = 'Invalid credentials.';
@@ -63,18 +52,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login</title>
-  <link rel="stylesheet" href="/Library_Management_System/styles.css?v=23">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login</title>
+<link rel="stylesheet" href="/Library_Management_System/styles.css?v=30">
 </head>
 <body>
 <header class="site-header">
   <div class="container nav">
     <a class="brand" href="index.php">Library</a>
+    <?php $me = $_SESSION['user'] ?? null; ?>
     <nav class="menu">
-      <a href="index.php">Home</a>
-      <a href="login.php" class="active">Login</a>
-      <a href="register.php">Register</a>
+      <a href="index.php" class="<?= basename($_SERVER['PHP_SELF'])==='index.php'?'active':'' ?>">Home</a>
+      <?php if ($me): ?>
+        <?php if (($me['role'] ?? 'user') === 'admin'): ?>
+          <a href="admin_dashboard.php" class="<?= basename($_SERVER['PHP_SELF'])==='admin_dashboard.php'?'active':'' ?>">My Dashboard</a>
+        <?php else: ?>
+          <a href="user_dashboard.php" class="<?= basename($_SERVER['PHP_SELF'])==='user_dashboard.php'?'active':'' ?>">My Borrowings</a>
+        <?php endif; ?>
+        <a href="logout.php">Logout</a>
+      <?php else: ?>
+        <a href="register.php" class="<?= basename($_SERVER['PHP_SELF'])==='register.php'?'active':'' ?>">Register</a>
+        <a href="login.php" class="active">Login</a>
+      <?php endif; ?>
     </nav>
   </div>
 </header>
