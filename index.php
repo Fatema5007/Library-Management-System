@@ -131,10 +131,9 @@ $user = $_SESSION['user'] ?? null;
     </div>
   </section>
 </main>
-
 <footer class="site-footer">
   <div class="container foot">
-    <small>© <?= date('Y') ?> Department of CSE, NEUB | Library Management System</small>
+    <small>Have a question? Email us at: library123@gmail.com</small>
   </div>
 </footer>
 </body>

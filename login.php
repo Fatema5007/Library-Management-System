@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <footer class="site-footer">
   <div class="container foot">
-    <small>© <?= date('Y') ?> Department of CSE, NEUB | Library Management System</small>
+    <small>Have a question? Email us at: library123@gmail.com</small>
   </div>
 </footer>
 </body>
