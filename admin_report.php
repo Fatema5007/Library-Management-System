@@ -31,9 +31,8 @@ $rows = $q->fetch_all(MYSQLI_ASSOC);
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Admin Report</title>
-<link rel="stylesheet" href="/Library_Management_System/styles.css?v=32">
+<link rel="stylesheet" href="/Library_Management_System/styles.css?v=40">
 </head>
-
 <body>
 
 <header class="site-header">
@@ -42,7 +41,7 @@ $rows = $q->fetch_all(MYSQLI_ASSOC);
     <nav class="menu">
       <a href="index.php">Home</a>
       <a href="admin_dashboard.php">Manage Books</a>
-      <a href="admin_report.php" class="active">Borrow Report</a>
+      <a class="active" href="admin_report.php">Borrow Report</a>
       <a href="logout.php">Logout</a>
     </nav>
   </div>
@@ -50,7 +49,7 @@ $rows = $q->fetch_all(MYSQLI_ASSOC);
 
 <main class="container">
 
-  <h2 style="margin:16px 0;">Borrowing Report </h2>
+  <h2 style="margin:16px 0;">Borrowing Report</h2>
 
   <div class="table-wrap">
     <table class="table">
@@ -66,31 +65,39 @@ $rows = $q->fetch_all(MYSQLI_ASSOC);
       </thead>
 
       <tbody>
-        <?php if (!empty($rows)): ?>
-            <?php foreach ($rows as $r): ?>
-               <tr>
-                 <td><?= htmlspecialchars($r['user_name']) ?></td>
-                 <td><?= htmlspecialchars($r['email']) ?></td>
-                 <td><?= htmlspecialchars($r['book_title']) ?></td>
-                 <td><?= date('d M Y, h:i A', strtotime($r['borrowed_at'])) ?></td>
-                 <td><?= date('d M Y, h:i A', strtotime($r['due_at'])) ?></td>
-                 <td><?= $r['returned_at'] ? 'Returned' : 'Borrowed' ?></td>
-               </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr><td colspan="6" class="muted">No borrowing records found.</td></tr>
+        <?php if ($rows): foreach ($rows as $r): ?>
+
+          <?php
+            $isOverdue = (!$r['returned_at'] && strtotime($r['due_at']) < time());
+            $status = $r['returned_at'] ? 'Returned' : ($isOverdue ? 'Overdue' : 'Borrowed');
+            $color = $isOverdue ? 'red' : '#000';
+          ?>
+
+          <tr>
+            <td><?= htmlspecialchars($r['user_name']) ?></td>
+            <td><?= htmlspecialchars($r['email']) ?></td>
+            <td><?= htmlspecialchars($r['book_title']) ?></td>
+
+            <td><?= date('d M Y, h:i A', strtotime($r['borrowed_at'])) ?></td>
+            <td><?= date('d M Y, h:i A', strtotime($r['due_at'])) ?></td>
+
+            <td style="color:<?= $color ?>; font-weight:600;"><?= $status ?></td>
+          </tr>
+
+        <?php endforeach; else: ?>
+          <tr><td colspan="6" class="muted">No borrowing records found.</td></tr>
         <?php endif; ?>
       </tbody>
     </table>
   </div>
 
 </main>
+
 <footer class="site-footer">
   <div class="container foot">
     <small>Have a question? Email us at: library123@gmail.com</small>
   </div>
 </footer>
-
 
 </body>
 </html>

@@ -39,6 +39,7 @@ $user = $_SESSION['user'] ?? null;
 <link rel="stylesheet" href="/Library_Management_System/styles.css?v=30">
 </head>
 <body>
+
 <header class="site-header">
   <div class="container nav">
     <a class="brand" href="index.php">Library</a>
@@ -47,20 +48,21 @@ $user = $_SESSION['user'] ?? null;
       <a href="index.php" class="<?= basename($_SERVER['PHP_SELF'])==='index.php'?'active':'' ?>">Home</a>
       <?php if ($me): ?>
         <?php if (($me['role'] ?? 'user') === 'admin'): ?>
-          <a href="admin_dashboard.php" class="<?= basename($_SERVER['PHP_SELF'])==='admin_dashboard.php'?'active':'' ?>">Admin Dashboard</a>
+          <a href="admin_dashboard.php">Admin Dashboard</a>
         <?php else: ?>
-          <a href="user_dashboard.php" class="<?= basename($_SERVER['PHP_SELF'])==='user_dashboard.php'?'active':'' ?>">My Borrowings</a>
+          <a href="user_dashboard.php">My Borrowings</a>
         <?php endif; ?>
         <a href="logout.php">Logout</a>
       <?php else: ?>
-        <a href="register.php" class="<?= basename($_SERVER['PHP_SELF'])==='register.php'?'active':'' ?>">Register</a>
-        <a href="login.php" class="<?= basename($_SERVER['PHP_SELF'])==='login.php'?'active':'' ?>">Login</a>
+        <a href="register.php">Register</a>
+        <a href="login.php">Login</a>
       <?php endif; ?>
     </nav>
   </div>
 </header>
 
 <main class="container">
+
   <?php if ($flash): ?>
     <div class="alert"><?= htmlspecialchars($flash) ?></div>
   <?php endif; ?>
@@ -76,19 +78,17 @@ $user = $_SESSION['user'] ?? null;
     </div>
   </section>
 
-  <section class="catalog">
+  <section class="catalog" id="results">
     <div class="catalog-head">
       <h2>Available Books</h2>
-      <form class="book-search" action="index.php" method="get">
-        <input type="text" name="q" placeholder="Search title or author" value="<?= htmlspecialchars($q) ?>" aria-label="Search books">
+      <form class="book-search" action="index.php#results" method="get">
+        <input type="text" name="q" placeholder="Search title or author" value="<?= htmlspecialchars($q) ?>">
         <button class="button" type="submit"><b>Search</b></button>
-        <?php if ($q !== ''): ?><a class="button" href="index.php"><b>Clear</b></a><?php endif; ?>
+        <?php if ($q !== ''): ?>
+          <a class="button" href="index.php#results"><b>Clear</b></a>
+        <?php endif; ?>
       </form>
     </div>
-
-    <?php if ($q !== ''): ?>
-      <div class="search-hint">Showing results for: <strong><?= htmlspecialchars($q) ?></strong> (<?= count($books) ?> found)</div>
-    <?php endif; ?>
 
     <div class="table-wrap">
       <table class="table">
@@ -101,6 +101,7 @@ $user = $_SESSION['user'] ?? null;
           </tr>
         </thead>
         <tbody>
+
         <?php if (!empty($books)): ?>
           <?php foreach ($books as $b):
             $available = (int)$b['copies_available'];
@@ -111,30 +112,34 @@ $user = $_SESSION['user'] ?? null;
               <td><?= htmlspecialchars($b['author']) ?></td>
               <td><?= $available ?> / <?= (int)$b['copies_total'] ?></td>
               <td>
-                <?php if ($available > 0): ?>
-                  <?php if ($user): ?>
-                    <a class="button" href="borrow.php?book_id=<?= $bookId ?>">Borrow</a>
-                  <?php else: ?>
-                    <a class="button" href="borrow.php?book_id=<?= $bookId ?>">Borrow </a>
-                  <?php endif; ?>
+                <?php if (($user['role'] ?? '') === 'admin'): ?>
+                  <span class="button is-disabled">Admin</span>
                 <?php else: ?>
-                  <span class="button is-disabled" aria-disabled="true">Out of stock</span>
+                  <?php if ($available > 0): ?>
+                    <a class="button" href="borrow_confirm.php?book_id=<?= $bookId ?>">Borrow</a>
+                  <?php else: ?>
+                    <span class="button is-disabled">Out of stock</span>
+                  <?php endif; ?>
                 <?php endif; ?>
               </td>
             </tr>
           <?php endforeach; ?>
+
         <?php else: ?>
           <tr><td colspan="4" class="muted">No books found.</td></tr>
         <?php endif; ?>
+
         </tbody>
       </table>
     </div>
   </section>
 </main>
+
 <footer class="site-footer">
   <div class="container foot">
     <small>Have a question? Email us at: library123@gmail.com</small>
   </div>
 </footer>
+
 </body>
 </html>

@@ -3,7 +3,6 @@ require __DIR__ . '/db.php';
 
 $user = $_SESSION['user'] ?? null;
 if (!$user) {
-  $_SESSION['flash'] = 'Please login.';
   header('Location: login.php');
   exit;
 }
@@ -23,77 +22,85 @@ $rows = $q->get_result()->fetch_all(MYSQLI_ASSOC);
 <html>
 <head>
 <title>Borrow History Report</title>
+<link rel="stylesheet" href="/Library_Management_System/styles.css?v=40">
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 40px;
-  color: #000;
+.page-wrap { width:min(900px,94%); margin:40px auto; }
+.export-header { text-align:center; margin-bottom:20px; }
+
+.export-table { width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+.export-table, .export-table th, .export-table td { border:1px solid #000; }
+.export-table th, .export-table td { padding:10px; text-align:left; }
+
+.print-btn {
+  padding:10px 16px;
+  background:#fff;
+  color:#000;
+  border:1px solid #000;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  margin-bottom:20px;
+  transition:0.25s;
 }
-
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.button {
-  display: inline-block;
-  padding: 10px 16px;
-  background: #000;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-
-.button:hover { opacity: .85; }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 14px;
-}
-
-table, th, td {
-  border: 1px solid #000;
-}
-
-th, td {
-  padding: 10px;
-  text-align: left;
+.print-btn:hover {
+  background:#000;
+  color:#000;
 }
 
 @media print {
-  .button { display: none; }
+  .site-header, .site-footer, .print-btn { display:none !important; }
 }
 </style>
-
 </head>
+
 <body>
 
-<h2>Borrow History Report</h2>
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.php">Library</a>
+    <nav class="menu">
+      <a href="index.php">Home</a>
+      <a href="user_dashboard.php">My Borrowings</a>
+      <a class="active" href="export_pdf.php">Export PDF</a>
+      <a href="logout.php">Logout</a>
+    </nav>
+  </div>
+</header>
 
-<a href="#" onclick="window.print()" class="button">Download PDF</a>
+<main class="page-wrap">
 
-<table>
-  <tr>
-    <th>Book Title</th>
-    <th>Borrowed</th>
-    <th>Due</th>
-    <th>Status</th>
-  </tr>
+  <h2 class="export-header">Borrow History Report</h2>
 
-  <?php foreach ($rows as $r): ?>
-  <tr>
-    <td><?= htmlspecialchars($r['title']) ?></td>
-    <td><?= date('d M Y', strtotime($r['borrowed_at'])) ?></td>
-    <td><?= date('d M Y', strtotime($r['due_at'])) ?></td>
-    <td><?= $r['returned_at'] ? 'Returned' : 'Not Returned' ?></td>
-  </tr>
-  <?php endforeach; ?>
+  <a href="#" onclick="window.print()" class="pdf-btn">Export PDF</a>
 
-</table>
+
+
+  <table class="export-table">
+    <tr>
+      <th>Book Title</th>
+      <th>Borrowed</th>
+      <th>Due</th>
+      <th>Status</th>
+    </tr>
+
+    <?php foreach ($rows as $r): ?>
+      <tr>
+        <td><?= htmlspecialchars($r['title']) ?></td>
+        <td><?= date('d M Y', strtotime($r['borrowed_at'])) ?></td>
+        <td><?= date('d M Y', strtotime($r['due_at'])) ?></td>
+        <td><?= $r['returned_at'] ? 'Returned' : 'Not Returned' ?></td>
+      </tr>
+    <?php endforeach; ?>
+
+  </table>
+</main>
+
+<footer class="site-footer">
+  <div class="container foot">
+    <small>Have a question? Email us at: library123@gmail.com</small>
+  </div>
+</footer>
 
 </body>
 </html>
